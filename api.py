@@ -1,5 +1,5 @@
 from database import open_connection, close_connection, create_tables, insert_post_data
-from utils import html_to_markdown, count_lines
+from utils import html_to_markdown, tags_to_comma_separated
 import re
 import os
 
@@ -24,12 +24,19 @@ def process_xml_line(conn, line, table):
         attributes = dict(re.findall(r'(\S+)="([^"]*)"', attributes_str))
         # Convert &amp;, &lt;, &gt;, etc. in 'Body' to their character equivalents
         if 'Body' in attributes:
-            attributes['Body'] = html_to_markdown(attributes.get('Body'))
+            attributes['Body'] = html_to_markdown(attributes['Body'])
+        if 'Tags' in attributes:   
+            attributes['Tags'] = tags_to_comma_separated(attributes['Tags'])
         # Here you would call insert_post with the attributes dictionary
         # For demonstration, just print the attributes
         insert_post_data(conn, attributes)  # Replace this with your database insert function call
 
-def process_xml_file(path, table):
+def skip_to_line(file, line_number):
+    """Skip to the specified line number in the file."""
+    for _ in range(line_number - 1):
+        next(file)
+        
+def process_xml_file(path, table, line_number):
     from colored import fg, attr
     red = fg('red')
     green = fg('green')
@@ -44,14 +51,15 @@ def process_xml_file(path, table):
     last_percent_printed = None
     
     try:
-        with open(path, 'r', encoding='utf-8') as file:            
+        with open(path, 'r', encoding='utf-8', errors='ignore') as file:   
+            skip_to_line(file, line_number)         
             for line in file:
                 process_xml_line(conn, line, table)
                 count += 1
                 processed_bytes += len(line.encode('utf-8'))  # Update processed bytes
                 last_percent_printed = print_progress(processed_bytes, total_bytes, last_percent_printed)
     except Exception as e:
-        print(f"{red}An error occurred: {e}{reset}")
+        print(f"{red}\nAn error occurred: {e}{reset}")
     else:
         print(f"\n{green}Processing completed.{reset}")
         print(f"{green}Number of processed lines: {count}{reset}")  

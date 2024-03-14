@@ -76,8 +76,8 @@ def main():
                     selected_type_snake_case = camel_to_snake(selected_type)
                     os.environ['SELECTED_TYPE'] = selected_type_snake_case
                     path = os.environ.get('SELECTED_FILE')
-                    if path:
-                        process_xml_file(path, selected_type_snake_case)                        
+                    if path:                        
+                        process_xml_file(path, selected_type_snake_case, 1)                        
                 else:
                     print(f"{red}Invalid choice, please enter a number within the provided range.{reset}")
             except ValueError:

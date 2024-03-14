@@ -3,17 +3,26 @@ from colored import fg, attr
 from html import unescape
 import markdownify
 
-def remove_nul_characters(s):
+def remove_nul_characters(text):
     """Remove NUL (0x00) characters from a string."""
-    return s.replace('\x00', '')
+    return text.replace('\x00', '')
+
+def remove_surrogates(text):
+    # Remove surrogate characters from a string
+    return ''.join(char for char in text if not 0xD800 <= ord(char) <= 0xDFFF)
+
+def tags_to_comma_separated(tag_string):
+    # Decode HTML entities to get the actual characters ("<", ">")
+    decoded_tag_string = tag_string.replace("&lt;", "<").replace("&gt;", ">")
+
+    # Split the string into individual tags, remove the angle brackets, then join with commas
+    tags = decoded_tag_string.strip("<>").split("><")
+    comma_separated_tags = ", ".join(tags)
+    
+    return comma_separated_tags
 
 def html_to_markdown(html):
-    return markdownify.markdownify(unescape(remove_nul_characters(html)), heading_style="ATX")
-
-def count_lines(path):
-    """Count the total number of lines in a file."""
-    with open(path, 'r', encoding='utf-8') as file:
-        return sum(1 for _ in file)
+    return remove_surrogates(remove_nul_characters(markdownify.markdownify(unescape(html), heading_style="ATX")))
 
 def list_xml_files(root_folder):
     """Recursively list all XML files in the given root folder and its subfolders."""
