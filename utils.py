@@ -10,6 +10,11 @@ def remove_nul_characters(s):
 def html_to_markdown(html):
     return markdownify.markdownify(unescape(remove_nul_characters(html)), heading_style="ATX")
 
+def count_lines(path):
+    """Count the total number of lines in a file."""
+    with open(path, 'r', encoding='utf-8') as file:
+        return sum(1 for _ in file)
+
 def list_xml_files(root_folder):
     """Recursively list all XML files in the given root folder and its subfolders."""
     import os
