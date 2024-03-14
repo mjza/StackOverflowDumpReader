@@ -18,12 +18,20 @@ def process_xml_line(conn, line):
         insert_post_data(conn, attributes)  # Replace this with your database insert function call
 
 def process_xml_file(path, table):
+    from colored import fg, attr
+    red = fg('red')
+    green = fg('green')
+    reset = attr('reset')
     conn = open_connection()
     create_tables(conn)
-    with open(path, 'r', encoding='utf-8') as file:
-        count = 1
-        for line in file:
-            process_xml_line(conn, line)
-            count += 1
-    print(f"number of lines: {count}")        
+    count = 0
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            
+            for line in file:
+                process_xml_line(conn, line)
+                count += 1
+    except Exception as e:
+        print(f"{red}An error occurred: {e}{reset}")        
+    print(f"{green}number of processed lines: {count}{reset}")        
     close_connection(conn)        

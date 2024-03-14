@@ -3,8 +3,12 @@ from colored import fg, attr
 from html import unescape
 import markdownify
 
+def remove_nul_characters(s):
+    """Remove NUL (0x00) characters from a string."""
+    return s.replace('\x00', '')
+
 def html_to_markdown(html):
-    return markdownify.markdownify(unescape(html), heading_style="ATX")
+    return markdownify.markdownify(unescape(remove_nul_characters(html)), heading_style="ATX")
 
 def list_xml_files(root_folder):
     """Recursively list all XML files in the given root folder and its subfolders."""

@@ -77,10 +77,7 @@ def main():
                     os.environ['SELECTED_TYPE'] = selected_type_snake_case
                     path = os.environ.get('SELECTED_FILE')
                     if path:
-                        try:
-                            process_xml_file(path, selected_type_snake_case)
-                        except Exception as e:
-                            print(f"{red}An error occurred: {e}{reset}")
+                        process_xml_file(path, selected_type_snake_case)                        
                 else:
                     print(f"{red}Invalid choice, please enter a number within the provided range.{reset}")
             except ValueError:
