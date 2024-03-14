@@ -1,0 +1,1 @@
+A folder for creating DB files. They are not pushed to the Git. 
