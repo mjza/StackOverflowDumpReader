@@ -71,3 +71,7 @@ Run the `main.py` file to run the program.
 ```
 python main.py
 ```
+
+## Sample Execution
+
+![Importing posts to DB](./images/figure1.png)
