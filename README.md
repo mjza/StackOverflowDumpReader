@@ -1,5 +1,6 @@
-# StackOverflowCrawler
-A project for importing dump from StackOverflow into a database
+# StackOverflow.com Dump to DB
+A project for importing dump from StackOverflow into a database.
+Right now supports SQLITE and POSTGRES. 
 
 ## Download file
 1. First download all `*.stackoverflow.com.7z` frile from [https://archive.org/download/stackexchange/](https://archive.org/download/stackexchange/).
