@@ -73,11 +73,10 @@ def main():
                 if 1 <= choice <= len(types):
                     selected_type = types[choice - 1]
                     print(f"{green}You selected: {selected_type}{reset}")
-                    selected_type_snake_case = camel_to_snake(selected_type)
-                    os.environ['SELECTED_TYPE'] = selected_type_snake_case
+                    os.environ['SELECTED_TYPE'] = selected_type
                     path = os.environ.get('SELECTED_FILE')
                     if path:                        
-                        process_xml_file(path, selected_type_snake_case, 1)                        
+                        process_xml_file(path, selected_type, 1)                        
                 else:
                     print(f"{red}Invalid choice, please enter a number within the provided range.{reset}")
             except ValueError:

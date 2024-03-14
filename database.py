@@ -35,7 +35,8 @@ def create_tables(conn):
     cursor = conn.cursor()
     # Create the tags table
     
-    cursor.execute('''CREATE TABLE IF NOT EXISTS posts (
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS posts (
         Id INTEGER PRIMARY KEY,
         PostTypeId INTEGER,
         AcceptedAnswerId INTEGER,
@@ -55,7 +56,63 @@ def create_tables(conn):
         FavoriteCount INTEGER,
         CommunityOwnedDate TEXT,
         ContentLicense TEXT
-    )''')  
+    )
+    ''')  
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS comments (
+        Id INTEGER PRIMARY KEY,
+        PostId INTEGER,
+        Score INTEGER,
+        Text TEXT,
+        CreationDate TEXT,
+        UserId INTEGER,
+        ContentLicense TEXT
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS postlinks (
+        Id INTEGER PRIMARY KEY,
+        CreationDate TEXT,
+        PostId INTEGER,
+        RelatedPostId INTEGER,
+        LinkTypeId INTEGER
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS tags (
+        Id INTEGER PRIMARY KEY,
+        TagName TEXT,
+        Count INTEGER,
+        ExcerptPostId INTEGER,
+        WikiPostId INTEGER
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        Id INTEGER PRIMARY KEY,
+        Reputation INTEGER,
+        CreationDate TEXT,
+        DisplayName TEXT,
+        LastAccessDate TEXT,
+        AboutMe TEXT,
+        Views INTEGER,
+        UpVotes INTEGER,
+        DownVotes INTEGER
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS votes (
+        Id INTEGER PRIMARY KEY,
+        PostId INTEGER,
+        VoteTypeId INTEGER,
+        CreationDate TEXT
+    )
+    ''')
     
     conn.commit() 
     
@@ -99,3 +156,119 @@ def insert_post_data(conn, data):
     cursor.execute(sql, post_data)
     conn.commit()
 
+def insert_comment_data(conn, data):
+    cursor = conn.cursor()
+    # Prepare data tuple
+    comment_data = (
+        data.get('Id', 0), data.get('PostId', 0), data.get('Score', 0),
+        data.get('Text', None), data.get('CreationDate', None),
+        data.get('UserId', 0), data.get('ContentLicense', None)
+    )
+
+    # Insert into database with ON CONFLICT clause
+    sql = f'''
+    INSERT INTO comments (Id, PostId, Score, Text, CreationDate, UserId, ContentLicense)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    ON CONFLICT(Id) DO UPDATE SET
+        PostId = EXCLUDED.PostId,
+        Score = EXCLUDED.Score,
+        Text = EXCLUDED.Text,
+        CreationDate = EXCLUDED.CreationDate,
+        UserId = EXCLUDED.UserId,
+        ContentLicense = EXCLUDED.ContentLicense
+    '''
+    cursor.execute(sql, comment_data)
+    conn.commit()
+
+def insert_postlink_data(conn, data):
+    cursor = conn.cursor()
+    # Prepare data tuple
+    postlink_data = (
+        data.get('Id', 0), data.get('CreationDate', None),
+        data.get('PostId', 0), data.get('RelatedPostId', 0),
+        data.get('LinkTypeId', 0)
+    )
+
+    # Insert into database with ON CONFLICT clause
+    sql = f'''
+    INSERT INTO postlinks (Id, CreationDate, PostId, RelatedPostId, LinkTypeId)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    ON CONFLICT(Id) DO UPDATE SET
+        CreationDate = EXCLUDED.CreationDate,
+        PostId = EXCLUDED.PostId,
+        RelatedPostId = EXCLUDED.RelatedPostId,
+        LinkTypeId = EXCLUDED.LinkTypeId
+    '''
+    cursor.execute(sql, postlink_data)
+    conn.commit()
+
+def insert_tag_data(conn, data):
+    cursor = conn.cursor()
+    # Prepare data tuple
+    tag_data = (
+        data.get('Id', 0), data.get('TagName', None),
+        data.get('Count', 0), data.get('ExcerptPostId', 0),
+        data.get('WikiPostId', 0)
+    )
+
+    # Insert into database with ON CONFLICT clause
+    sql = f'''
+    INSERT INTO tags (Id, TagName, Count, ExcerptPostId, WikiPostId)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    ON CONFLICT(Id) DO UPDATE SET
+        TagName = EXCLUDED.TagName,
+        Count = EXCLUDED.Count,
+        ExcerptPostId = EXCLUDED.ExcerptPostId,
+        WikiPostId = EXCLUDED.WikiPostId
+    '''
+    cursor.execute(sql, tag_data)
+    conn.commit()
+
+def insert_user_data(conn, data):
+    cursor = conn.cursor()
+    # Prepare data tuple, converting special HTML entities and newline characters in 'AboutMe'
+    user_data = (
+        data.get('Id', 0), data.get('Reputation', 0), 
+        data.get('CreationDate', None), data.get('DisplayName', None), 
+        data.get('LastAccessDate', None), 
+        data.get('AboutMe', None), 
+        data.get('Views', 0), data.get('UpVotes', 0), 
+        data.get('DownVotes', 0)
+    )
+
+    # Insert into database with ON CONFLICT clause
+    sql = f'''
+    INSERT INTO users (Id, Reputation, CreationDate, DisplayName, LastAccessDate, AboutMe, Views, UpVotes, DownVotes)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    ON CONFLICT(Id) DO UPDATE SET
+        Reputation = EXCLUDED.Reputation,
+        CreationDate = EXCLUDED.CreationDate,
+        DisplayName = EXCLUDED.DisplayName,
+        LastAccessDate = EXCLUDED.LastAccessDate,
+        AboutMe = EXCLUDED.AboutMe,
+        Views = EXCLUDED.Views,
+        UpVotes = EXCLUDED.UpVotes,
+        DownVotes = EXCLUDED.DownVotes
+    '''
+    cursor.execute(sql, user_data)
+    conn.commit()
+
+def insert_vote_data(conn, data):
+    cursor = conn.cursor()
+    # Prepare data tuple
+    vote_data = (
+        data.get('Id', None), data.get('PostId', 0), 
+        data.get('VoteTypeId', 0), data.get('CreationDate', None)
+    )
+
+    # Insert into database with ON CONFLICT clause
+    sql = f'''
+    INSERT INTO votes (Id, PostId, VoteTypeId, CreationDate)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    ON CONFLICT(Id) DO UPDATE SET
+        PostId = EXCLUDED.PostId,
+        VoteTypeId = EXCLUDED.VoteTypeId,
+        CreationDate = EXCLUDED.CreationDate
+    '''
+    cursor.execute(sql, vote_data)
+    conn.commit()

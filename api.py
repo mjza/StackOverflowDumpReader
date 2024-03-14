@@ -1,4 +1,4 @@
-from database import open_connection, close_connection, create_tables, insert_post_data
+from database import open_connection, close_connection, create_tables, insert_post_data, insert_vote_data, insert_user_data, insert_tag_data, insert_postlink_data, insert_comment_data
 from utils import html_to_markdown, tags_to_comma_separated
 import re
 import os
@@ -22,15 +22,30 @@ def process_xml_line(conn, line, table):
         attributes_str = match.group(1)
         # Convert the attributes string to a dictionary
         attributes = dict(re.findall(r'(\S+)="([^"]*)"', attributes_str))
-        # Convert &amp;, &lt;, &gt;, etc. in 'Body' to their character equivalents
-        if 'Body' in attributes:
-            attributes['Body'] = html_to_markdown(attributes['Body'])
-        if 'Tags' in attributes:   
-            attributes['Tags'] = tags_to_comma_separated(attributes['Tags'])
-        # Here you would call insert_post with the attributes dictionary
-        # For demonstration, just print the attributes
-        insert_post_data(conn, attributes)  # Replace this with your database insert function call
-
+        
+        if table == "Votes": 
+            insert_vote_data(conn, attributes)
+        elif table == "Users":
+            if 'AboutMe' in attributes:
+                attributes['AboutMe'] = html_to_markdown(attributes['AboutMe'])
+            insert_user_data(conn, attributes)
+        elif table == "Tags":
+            insert_tag_data(conn, attributes)
+        elif table == "PostLinks":
+            insert_postlink_data(conn, attributes)
+        elif table == 'Posts':
+            if 'Body' in attributes:
+                attributes['Body'] = html_to_markdown(attributes['Body'])
+            if 'Tags' in attributes:   
+                attributes['Tags'] = tags_to_comma_separated(attributes['Tags'])
+            insert_post_data(conn, attributes)
+        elif table == "Comments":   
+            if 'Text' in attributes:
+                attributes['Text'] = html_to_markdown(attributes['Text']) 
+            insert_comment_data(conn, attributes)
+        else:
+            raise ValueError(f"Unknown type: {table}. Data insertion skipped.")
+            
 def skip_to_line(file, line_number):
     """Skip to the specified line number in the file."""
     for _ in range(line_number - 1):
@@ -51,7 +66,7 @@ def process_xml_file(path, table, line_number):
     last_percent_printed = None
     
     try:
-        with open(path, 'r', encoding='utf-8', errors='ignore') as file:   
+        with open(path, 'r', encoding='utf-8', errors='replace') as file:   
             skip_to_line(file, line_number)         
             for line in file:
                 process_xml_line(conn, line, table)
