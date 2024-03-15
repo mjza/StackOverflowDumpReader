@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 def main():
     from colored import fg, attr
-    from utils import list_xml_files, camel_to_snake, read_first_node
+    from utils import list_xml_files, read_yes_no, read_integer, read_first_node
     from api import process_xml_file
     
     red = fg('red')    
@@ -76,7 +76,11 @@ def main():
                     os.environ['SELECTED_TYPE'] = selected_type
                     path = os.environ.get('SELECTED_FILE')
                     if path:                        
-                        process_xml_file(path, selected_type, 1)                        
+                        start_line_number = 1
+                        should_read = read_yes_no(f"{blue}Do you want to enter a start line number (default is 1)?{reset}")
+                        if should_read:
+                            start_line_number = read_integer(f"{blue}Please enter the start line number: {reset}")
+                        process_xml_file(path, selected_type, start_line_number)                        
                 else:
                     print(f"{red}Invalid choice, please enter a number within the provided range.{reset}")
             except ValueError:

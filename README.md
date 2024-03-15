@@ -57,6 +57,7 @@ pip install python-dotenv
 pip install colored
 pip install psycopg2-binary
 pip install markdownify
+pip install beautifulsoup4 html2text
 ```
 
 ## Configuration

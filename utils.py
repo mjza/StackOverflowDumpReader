@@ -2,6 +2,8 @@
 from colored import fg, attr
 from html import unescape
 import markdownify
+import html2text
+import re
 
 def remove_nul_characters(text):
     """Remove NUL (0x00) characters from a string."""
@@ -21,8 +23,30 @@ def tags_to_comma_separated(tag_string):
     
     return comma_separated_tags
 
-def html_to_markdown(html):
+def html_to_markdown1(html):
     return remove_surrogates(remove_nul_characters(markdownify.markdownify(unescape(html), heading_style="ATX")))
+
+def html_to_markdown2(encoded_html):
+    # Decode HTML entities
+    html = unescape(encoded_html)
+
+    # Initialize html2text
+    text_maker = html2text.HTML2Text()
+    text_maker.ignore_links = False
+    text_maker.ignore_images = True
+    text_maker.ignore_emphasis = False
+    text_maker.ignore_tables = False
+    text_maker.mark_code = True
+    text_maker.body_width = 0
+
+    # Convert HTML to Markdown
+    markdown = text_maker.handle(html)
+
+    # Clean up code blocks if necessary (this step may not be needed with html2text, but included for completeness)
+    markdown = re.sub(r'^\[code\]\s*$', '```', markdown, flags=re.MULTILINE)
+    markdown = re.sub(r'^\[/code\]\s*$', '```', markdown, flags=re.MULTILINE)
+
+    return remove_surrogates(remove_nul_characters(markdown))
 
 def list_xml_files(root_folder):
     """Recursively list all XML files in the given root folder and its subfolders."""
@@ -91,3 +115,30 @@ def read_yes_no(prompt_message):
             return False
         else:
             print(f"{red}Invalid input. Please enter 'Y' for Yes or 'N' for No.{reset}")
+            
+def skip_to_line(file, line_number):
+    """Skip to the specified line number in the file and return the number of bytes passed."""
+    from colored import fg, attr
+    magenta = fg('magenta')
+    reset = attr('reset')
+    if line_number > 1:
+        print(f"{magenta}Skeeping to the start line ...{reset}")
+    bytes_passed = 0
+    for _ in range(line_number - 1):
+        line = next(file)
+        bytes_passed += len(line.encode('utf-8'))  # Assuming UTF-8 encoding for byte length calculation
+    return bytes_passed  
+
+def print_progress(current_bytes, total_bytes, last_printed_percent=None):
+    """Prints progress based on bytes processed, updating at each 1% increment of progress."""
+    from colored import fg, attr
+    magenta = fg('magenta')
+    reset = attr('reset')
+    percentage = int(100 * (current_bytes / total_bytes))  # Convert to int for whole number percentages
+    if last_printed_percent is None or percentage > last_printed_percent:
+        bar_length = 50  # Modify this to change the progress bar length
+        progress_mark = int(bar_length * (current_bytes / total_bytes))
+        bar = '[' + '#' * progress_mark + '-' * (bar_length - progress_mark) + ']'
+        print(f"{magenta}\rProgress: {percentage}% {bar}{reset}", end='', flush=True)
+        return percentage  # Return the current percentage for tracking
+    return last_printed_percent          
