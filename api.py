@@ -16,7 +16,8 @@ def process_xml_line(conn, line, table):
             insert_vote_data(conn, attributes)
         elif table == "Users":
             if 'AboutMe' in attributes:
-                attributes['AboutMe'] = html_to_markdown2(attributes['AboutMe'])
+                attributes['AboutMe'], error = html_to_markdown2(attributes['AboutMe'])
+                attributes['Error'] = error
             insert_user_data(conn, attributes)
         elif table == "Tags":
             insert_tag_data(conn, attributes)
@@ -24,13 +25,15 @@ def process_xml_line(conn, line, table):
             insert_postlink_data(conn, attributes)
         elif table == 'Posts':
             if 'Body' in attributes:
-                attributes['Body'] = html_to_markdown2(attributes['Body'])
+                attributes['Body'], error = html_to_markdown2(attributes['Body'])
+                attributes['Error'] = error
             if 'Tags' in attributes:   
                 attributes['Tags'] = tags_to_comma_separated(attributes['Tags'])
             insert_post_data(conn, attributes)
         elif table == "Comments":   
             if 'Text' in attributes:
-                attributes['Text'] = html_to_markdown2(attributes['Text']) 
+                attributes['Text'], error = html_to_markdown2(attributes['Text']) 
+                attributes['Error'] = error
             insert_comment_data(conn, attributes)
         else:
             raise ValueError(f"Unknown type: {table}. Data insertion skipped.")
@@ -61,6 +64,7 @@ def process_xml_file(path, table, start_line_number):
     except Exception as e:
         print(f"{red}\nAn error occurred: {e}{reset}")
     else:
+        print_progress(total_bytes, total_bytes, last_percent_printed)
         print(f"\n{green}Processing completed.{reset}")
         print(f"{green}Number of processed lines: {count}{reset}")  
     finally:      

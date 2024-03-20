@@ -38,15 +38,21 @@ def html_to_markdown2(encoded_html):
     text_maker.ignore_tables = False
     text_maker.mark_code = True
     text_maker.body_width = 0
+    text_maker.skip_internal_links = True
 
-    # Convert HTML to Markdown
-    markdown = text_maker.handle(html)
+    error = False
+    try:
+        # Convert HTML to Markdown
+        markdown = text_maker.handle(html)
+        # Clean up code blocks if necessary (this step may not be needed with html2text, but included for completeness)
+        markdown = re.sub(r'^\[code\]\s*$', '```', markdown, flags=re.MULTILINE)
+        markdown = re.sub(r'^\[/code\]\s*$', '```', markdown, flags=re.MULTILINE)
+    except Exception as e:
+        print(f"An error occurred during HTML to Markdown conversion: {e}")    
+        markdown = html
+        error = True
 
-    # Clean up code blocks if necessary (this step may not be needed with html2text, but included for completeness)
-    markdown = re.sub(r'^\[code\]\s*$', '```', markdown, flags=re.MULTILINE)
-    markdown = re.sub(r'^\[/code\]\s*$', '```', markdown, flags=re.MULTILINE)
-
-    return remove_surrogates(remove_nul_characters(markdown))
+    return remove_surrogates(remove_nul_characters(markdown)), error
 
 def list_xml_files(root_folder):
     """Recursively list all XML files in the given root folder and its subfolders."""

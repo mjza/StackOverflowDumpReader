@@ -55,7 +55,8 @@ def create_tables(conn):
         CommentCount INTEGER,
         FavoriteCount INTEGER,
         CommunityOwnedDate TEXT,
-        ContentLicense TEXT
+        ContentLicense TEXT,
+        Error BOOLEAN
     )
     ''')  
     
@@ -67,7 +68,8 @@ def create_tables(conn):
         Text TEXT,
         CreationDate TEXT,
         UserId INTEGER,
-        ContentLicense TEXT
+        ContentLicense TEXT,
+        Error BOOLEAN
     )
     ''')
     
@@ -101,7 +103,8 @@ def create_tables(conn):
         AboutMe TEXT,
         Views INTEGER,
         UpVotes INTEGER,
-        DownVotes INTEGER
+        DownVotes INTEGER,
+        Error BOOLEAN
     )
     ''')
     
@@ -127,12 +130,12 @@ def insert_post_data(conn, data):
         data.get('LastActivityDate', None), data.get('Title', None), 
         data.get('Tags', None), data.get('AnswerCount', None), data.get('CommentCount', None), 
         data.get('FavoriteCount', None), data.get('CommunityOwnedDate', None), 
-        data.get('ContentLicense', None)
+        data.get('ContentLicense', None), data.get('Error', None)
     )
     
     # Insert into database with ON CONFLICT clause
-    sql = f'''INSERT INTO posts (Id, PostTypeId, AcceptedAnswerId, CreationDate, Score, ViewCount, Body, OwnerUserId, LastEditorUserId, LastEditorDisplayName, LastEditDate, LastActivityDate, Title, Tags, AnswerCount, CommentCount, FavoriteCount, CommunityOwnedDate, ContentLicense)
-              VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    sql = f'''INSERT INTO posts (Id, PostTypeId, AcceptedAnswerId, CreationDate, Score, ViewCount, Body, OwnerUserId, LastEditorUserId, LastEditorDisplayName, LastEditDate, LastActivityDate, Title, Tags, AnswerCount, CommentCount, FavoriteCount, CommunityOwnedDate, ContentLicense, Error)
+              VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
               ON CONFLICT(Id) DO UPDATE SET
                 PostTypeId = EXCLUDED.PostTypeId,
                 AcceptedAnswerId = EXCLUDED.AcceptedAnswerId,
@@ -151,7 +154,8 @@ def insert_post_data(conn, data):
                 CommentCount = EXCLUDED.CommentCount,
                 FavoriteCount = EXCLUDED.FavoriteCount,
                 CommunityOwnedDate = EXCLUDED.CommunityOwnedDate,
-                ContentLicense = EXCLUDED.ContentLicense
+                ContentLicense = EXCLUDED.ContentLicense,
+                Error = EXCLUDED.Error
            '''
     cursor.execute(sql, post_data)
     conn.commit()
@@ -162,20 +166,22 @@ def insert_comment_data(conn, data):
     comment_data = (
         data.get('Id', 0), data.get('PostId', 0), data.get('Score', 0),
         data.get('Text', None), data.get('CreationDate', None),
-        data.get('UserId', 0), data.get('ContentLicense', None)
+        data.get('UserId', 0), data.get('ContentLicense', None), 
+        data.get('Error', None)
     )
 
     # Insert into database with ON CONFLICT clause
     sql = f'''
-    INSERT INTO comments (Id, PostId, Score, Text, CreationDate, UserId, ContentLicense)
-    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    INSERT INTO comments (Id, PostId, Score, Text, CreationDate, UserId, ContentLicense, Error)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
     ON CONFLICT(Id) DO UPDATE SET
         PostId = EXCLUDED.PostId,
         Score = EXCLUDED.Score,
         Text = EXCLUDED.Text,
         CreationDate = EXCLUDED.CreationDate,
         UserId = EXCLUDED.UserId,
-        ContentLicense = EXCLUDED.ContentLicense
+        ContentLicense = EXCLUDED.ContentLicense,
+        Error = EXCLUDED.Error
     '''
     cursor.execute(sql, comment_data)
     conn.commit()
@@ -233,13 +239,13 @@ def insert_user_data(conn, data):
         data.get('LastAccessDate', None), 
         data.get('AboutMe', None), 
         data.get('Views', 0), data.get('UpVotes', 0), 
-        data.get('DownVotes', 0)
+        data.get('DownVotes', 0), data.get('Error', None)
     )
 
     # Insert into database with ON CONFLICT clause
     sql = f'''
-    INSERT INTO users (Id, Reputation, CreationDate, DisplayName, LastAccessDate, AboutMe, Views, UpVotes, DownVotes)
-    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
+    INSERT INTO users (Id, Reputation, CreationDate, DisplayName, LastAccessDate, AboutMe, Views, UpVotes, DownVotes, Error)
+    VALUES ({PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER}, {PLACE_HOLDER})
     ON CONFLICT(Id) DO UPDATE SET
         Reputation = EXCLUDED.Reputation,
         CreationDate = EXCLUDED.CreationDate,
@@ -248,7 +254,8 @@ def insert_user_data(conn, data):
         AboutMe = EXCLUDED.AboutMe,
         Views = EXCLUDED.Views,
         UpVotes = EXCLUDED.UpVotes,
-        DownVotes = EXCLUDED.DownVotes
+        DownVotes = EXCLUDED.DownVotes,
+        Error = EXCLUDED.Error
     '''
     cursor.execute(sql, user_data)
     conn.commit()
