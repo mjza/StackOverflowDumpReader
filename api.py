@@ -3,7 +3,7 @@ from utils import html_to_markdown2, tags_to_comma_separated, skip_to_line, prin
 import re
 import os
    
-def process_xml_line(conn, line, table):
+def process_xml_line(conn, line, table, convert_to_md):
     # Regular expression to match the <row> elements and capture their attributes
     row_regex = re.compile(r'<row ([^>]+)>')
     match = row_regex.search(line)
@@ -16,8 +16,9 @@ def process_xml_line(conn, line, table):
             insert_vote_data(conn, attributes)
         elif table == "Users":
             if 'AboutMe' in attributes:
-                attributes['AboutMe'], error = html_to_markdown2(attributes['AboutMe'])
-                attributes['Error'] = error
+                if convert_to_md == True:
+                    attributes['AboutMe'], error = html_to_markdown2(attributes['AboutMe'])
+                    attributes['Error'] = error
             insert_user_data(conn, attributes)
         elif table == "Tags":
             insert_tag_data(conn, attributes)
@@ -25,20 +26,22 @@ def process_xml_line(conn, line, table):
             insert_postlink_data(conn, attributes)
         elif table == 'Posts':
             if 'Body' in attributes:
-                attributes['Body'], error = html_to_markdown2(attributes['Body'])
-                attributes['Error'] = error
+                if convert_to_md == True:
+                    attributes['Body'], error = html_to_markdown2(attributes['Body'])
+                    attributes['Error'] = error
             if 'Tags' in attributes:   
                 attributes['Tags'] = tags_to_comma_separated(attributes['Tags'])
             insert_post_data(conn, attributes)
         elif table == "Comments":   
             if 'Text' in attributes:
-                attributes['Text'], error = html_to_markdown2(attributes['Text']) 
-                attributes['Error'] = error
+                if convert_to_md == True:
+                    attributes['Text'], error = html_to_markdown2(attributes['Text']) 
+                    attributes['Error'] = error
             insert_comment_data(conn, attributes)
         else:
             raise ValueError(f"Unknown type: {table}. Data insertion skipped.")
       
-def process_xml_file(path, table, start_line_number):
+def process_xml_file(path, table, start_line_number, convert_to_md):
     from colored import fg, attr
     red = fg('red')
     green = fg('green')
@@ -57,7 +60,7 @@ def process_xml_file(path, table, start_line_number):
         with open(path, 'r', encoding='utf-8', errors='replace') as file:   
             processed_bytes = skip_to_line(file, start_line_number)         
             for line in file:
-                process_xml_line(conn, line, table)
+                process_xml_line(conn, line, table, convert_to_md)
                 count += 1
                 processed_bytes += len(line.encode('utf-8'))
                 last_percent_printed = print_progress(processed_bytes, total_bytes, last_percent_printed)

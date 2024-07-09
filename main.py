@@ -80,7 +80,8 @@ def main():
                         should_read = read_yes_no(f"{blue}Do you want to enter a start line number (default is 1)?{reset}")
                         if should_read:
                             start_line_number = read_integer(f"{blue}Please enter the start line number: {reset}")
-                        process_xml_file(path, selected_type, start_line_number)                        
+                        convert_to_md = read_yes_no(f"{blue}Do you want to convert texts to MD?{reset}")   
+                        process_xml_file(path, selected_type, start_line_number, convert_to_md)                        
                 else:
                     print(f"{red}Invalid choice, please enter a number within the provided range.{reset}")
             except ValueError:

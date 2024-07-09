@@ -50,7 +50,14 @@ source venv/bin/activate
 Once activated, your terminal prompt must change to indicate that the virtual environment is active.
 
 ## Installing Dependencies
-With the virtual environment activated, install the required packages. Ensure you have the following installed in your Python environment. If not, you can install them using pip:
+
+With the virtual environment activated, install the dependencies listed in `requirements.txt` by running:
+
+```
+pip install -r requirements.txt
+```
+
+Or you can install them directly. Ensure you have the following installed in your Python environment. If not, you can install them using pip:
 
 ```
 pip install python-dotenv

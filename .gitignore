@@ -166,3 +166,4 @@ db/*
 
 # ignore all xml files in inputs
 inputs/**/*.xml
+*.7z
