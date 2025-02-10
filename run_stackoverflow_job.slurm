@@ -4,25 +4,28 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
-#SBATCH --output=job_output_%j.log
-#SBATCH --error=job_error_%j.log
+#SBATCH --output=/work/barcomb_lab/Mahdi/StackOverflowDumpReader/logs/job_output_%j.log
+#SBATCH --error=/work/barcomb_lab/Mahdi/StackOverflowDumpReader/logs/job_error_%j.log
 #SBATCH --partition=single
 
-# Load required modules
-module load python/3.8  # Adjust if necessary
+# Load required modules (if any)
+module load python/3.11
 
-# Create and activate a virtual environment
+# Set up virtual environment
 VENV_DIR="/work/barcomb_lab/Mahdi/StackOverflowDumpReader/venv"
 if [ ! -d "$VENV_DIR" ]; then
     python3 -m venv "$VENV_DIR"
+    source "$VENV_DIR/bin/activate"
+    pip install -r /work/barcomb_lab/Mahdi/StackOverflowDumpReader/requirements.txt
+else
+    source "$VENV_DIR/bin/activate"
 fi
-source "$VENV_DIR/bin/activate"
 
-# Install dependencies if not already installed
-pip install --upgrade pip
-pip install python-dotenv colored psycopg2-binary markdownify beautifulsoup4 html2text
+# Ensure .env is in place
+cp /work/barcomb_lab/Mahdi/StackOverflowDumpReader/.env $VENV_DIR/
+export $(cat $VENV_DIR/.env | xargs)
 
-# Run the script
+# Run Python script
 python3 /work/barcomb_lab/Mahdi/StackOverflowDumpReader/main.py \
   --input_file_path "/work/barcomb_lab/Mahdi/StackOverflowDumpReader/inputs/Posts.xml" \
   --destination_table "Posts" \
