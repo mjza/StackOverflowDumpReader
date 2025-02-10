@@ -3,6 +3,7 @@ import sqlite3
 import psycopg2
 
 DBMS = os.getenv('DBMS')
+print(f"DBMS: {DBMS}")
 if DBMS == 'SQLITE':
     PLACE_HOLDER = "?"
 elif DBMS == 'POSTGRES':
