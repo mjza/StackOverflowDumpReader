@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=StackOverflowJob
-#SBATCH --time=7-23:59:59  # 7 hours
+#SBATCH --time=6-23:59:59  # 7 days
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --output=job_output_%j.log
 #SBATCH --error=job_error_%j.log
-#SBATCH --partition=standard
+#SBATCH --partition=single
 
 # Load required modules
 module load python/3.8  # Adjust Python version if necessary
