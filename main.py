@@ -1,11 +1,11 @@
 import os
 import argparse
 from dotenv import load_dotenv
-from colored import fg, attr
-from utils import list_xml_files, read_yes_no, read_integer, read_first_node
-from api import process_xml_file
 
 def main(input_file_path=None, destination_table=None, start_line_number=1, convert_to_md=True):
+    from colored import fg, attr
+    from utils import list_xml_files, read_yes_no, read_integer, read_first_node
+    from api import process_xml_file
 
     if input_file_path and destination_table:
         process_xml_file(input_file_path, destination_table, start_line_number, convert_to_md)
@@ -91,15 +91,16 @@ def main(input_file_path=None, destination_table=None, start_line_number=1, conv
                 print(f"{red}Unknown command number. Please try again.{reset}")  
 
 if __name__ == '__main__':
-    # Load environment variables from .env file
-    load_dotenv()
 
     parser = argparse.ArgumentParser(description='Stackoverflow XML CLI Processor')
     parser.add_argument('--input_file_path', type=str, help='Path to the input file')
     parser.add_argument('--destination_table', type=str, help='Destination table {Votes, Users, Tags, PostLinks, Posts, Comments}')
     parser.add_argument('--start_line_number', type=int, default=1, help='Start line number (default is 1)')
     parser.add_argument('--convert_to_md', type=bool, default=True, help='Convert texts to Markdown (default is True)')
+    parser.add_argument('--env', type=str, help='Path to the environment file')
     
     args = parser.parse_args()
+    
+    load_dotenv(args.env)
     
     main(args.input_file_path, args.destination_table, args.start_line_number, args.convert_to_md)
