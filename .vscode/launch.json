@@ -5,11 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
+            "name": "Python Debugger: Current file",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: Current file with argument",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--input_file_path", "C:/Users/mahdi/Git/GitHub/StackOverflowDumpReader/inputs/Tags.xml",
+                "--destination_table", "Tags",
+                "--start_line_number", "1",
+                "--convert_to_md", "True"
+            ]
         }
     ]
 }

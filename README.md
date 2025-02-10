@@ -76,8 +76,14 @@ Edit the `.env` file as following:
 
 ## Run
 Run the `main.py` file to run the program. 
-```
+```bash
 python main.py
+```
+
+Run with arguments:
+
+```bash
+python main.py --input_file_path "C:\Users\mahdi\Git\GitHub\StackOverflowDumpReader\inputs\Tags.xml"  --destination_table "Tags"  --start_line_number 1 --convert_to_md True
 ```
 
 ## Sample Execution
